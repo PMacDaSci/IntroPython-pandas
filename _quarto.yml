@@ -1,6 +1,7 @@
-url: https://sanduni-p.github.io/IntroPython/
+url: https://sanduni-p.github.io/IntroPython-pandas/
 project:
   type: website
+  output-dir: docs
 
 website:
   back-to-top-navigation: true
@@ -15,7 +16,8 @@ website:
       - section: "Workshop Materials"
         contents: 
           - vignettes/1_Introduction.qmd
-          - vignettes/2_Reading_tidying_data.qmd
+          - vignettes/2_Intro_pandas.qmd
+          - vignettes/3_Data_manipulation.qmd
   
 format:
   html:

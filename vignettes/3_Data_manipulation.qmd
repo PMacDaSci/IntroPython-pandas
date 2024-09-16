@@ -1,0 +1,933 @@
+---
+title: "Data Manipulation with pandas"
+---
+
+In this section, we will explore various data manipulation and analysis techniques using the Pandas library. We'll begin by learning how to set, update, or replace data within a DataFrame. Then, we'll cover how to handle missing data effectively. Next, we will delve into grouping data, transforming it, and joining different datasets to prepare for downstream analysis. Finally, we'll look at generating summary statistics to gain a deeper understanding of the underlying data.
+
+We will use the following DataFrames in this section.
+
+```{python}
+import numpy as np
+import pandas as pd
+
+df = pd.DataFrame(
+    {
+        "A": np.random.uniform(low=0, high=1, size=12),
+        "B": pd.date_range(start="20230102", periods=12),
+        "C": pd.Series(range(1, 13), index=["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8" ,"R9", "R10", "R11", "R12"]),
+        "D": np.random.randint(1, high=100, size=12),
+        "E": pd.Categorical(["red", "green", "blue", "white", "pink", "brown", "black", "purple", "orange", "grey", "violet", "yellow"]),
+        "F": "foo",
+    }, index = ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8" ,"R9", "R10", "R11", "R12"]
+)
+
+cms = pd.read_csv('data/patient_satisfaction/cms_hospital_patient_satisfaction.csv')
+```
+
+
+## Statistics on data
+
+The pandas library provides a wide range of statistical functions and methods to compute summary statistics for your data. Below provides some of the key statistical measures you can compute using this library. 
+
+Consider the following dataset which contains 15 rows. Each row contains 8 features (columns). 
+ 
+::: scrolling
+```{python}
+cms
+```
+:::
+
+You can compute the mean of a Series (a single column of data) or a DataFrame (a table of data) using the `.mean()` method.
+
+-   Calculate the mean value for a certain column: 
+    ```{python}
+    cms['No of Surveys'].mean()
+    ```
+
+-   Calculate the mean value for each column: 
+    ```{python}
+    cms.mean(numeric_only = True)
+    ```
+
+-   Calculate the mean value for each row:
+    ```{python}
+    cms.mean(axis=1, numeric_only = True)
+    ```
+
+-   The median is the middle value of a dataset when the values are arranged in ascending order. It is not affected by extreme values (outliers) and is often used to describe the central tendency of data. In Pandas, you can compute the median using the `.median()` method.
+
+    ```{python}
+    cms.median(numeric_only = True)
+    ```
+
+-   The standard deviation measures the amount of variation or dispersion in a dataset. A lower standard deviation indicates that data points are close to the mean, while a higher standard deviation indicates greater variability. In Pandas, you can compute the standard deviation using the `.std()` method.
+
+    ```{python}
+    cms.std(numeric_only = True)
+    ```
+
+-   Variance quantifies how much individual data points deviate from the mean. It is the square of the standard deviation. In Pandas, you can compute the variance using the `.var()` method.
+
+    ```{python}
+    cms.var(numeric_only = True)
+    ```
+
+-   You can also compute the sum of values using `.sum()` and count the total number of non-missing values using `.count()`.
+
+    ```{python}
+    cms.sum(numeric_only = True)
+    ```
+    
+    ```{python}
+    cms.count()
+    ```
+    
+    ```{python}
+    cms["Overall Rating"].sum()
+    ```
+
+Here is a quick reference summary table of common useful functions.
+
+```{=html}
+<table>
+  <thead>
+    <tr>
+      <th>Function</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><code>count</code></td>
+      <td>Number of non-NA observations</td>
+    </tr>
+    <tr>
+      <td align="center"><code>sum</code></td>
+      <td>Sum of values</td>
+    </tr>
+    <tr>
+      <td align="center"><code>mean</code></td>
+      <td>Mean of values</td>
+    </tr>
+    <tr>
+      <td align="center"><code>median</code></td>
+      <td>Arithmetic median of values</td>
+    </tr>
+    <tr>
+      <td align="center"><code>min</code></td>
+      <td>Minimum</td>
+    </tr>
+    <tr>
+      <td align="center"><code>max</code></td>
+      <td>Maximum</td>
+    </tr>
+    <tr>
+      <td align="center"><code>mode</code></td>
+      <td>Mode</td>
+    </tr>
+    <tr>
+      <td align="center"><code>abs</code></td>
+      <td>Absolute Value</td>
+    </tr>
+    <tr>
+      <td align="center"><code>prod</code></td>
+      <td>Product of values</td>
+    </tr>
+    <tr>
+      <td align="center"><code>std</code></td>
+      <td>Bessel-corrected sample standard deviation</td>
+    </tr>
+    <tr>
+      <td align="center"><code>var</code></td>
+      <td>Unbiased variance</td>
+    </tr>
+    <tr>
+      <td align="center"><code>sem</code></td>
+      <td>Standard error of the mean</td>
+    </tr>
+    <tr>
+      <td align="center"><code>skew</code></td>
+      <td>Sample skewness (3rd moment)</td>
+    </tr>
+    <tr>
+      <td align="center"><code>kurt</code></td>
+      <td>Sample kurtosis (4th moment)</td>
+    </tr>
+    <tr>
+      <td align="center"><code>quantile</code></td>
+      <td>Sample quantile (value at %)</td>
+    </tr>
+    <tr>
+      <td align="center"><code>cumsum</code></td>
+      <td>Cumulative sum</td>
+    </tr>
+    <tr>
+      <td align="center"><code>cumprod</code></td>
+      <td>Cumulative product</td>
+    </tr>
+    <tr>
+      <td align="center"><code>cummax</code></td>
+      <td>Cumulative maximum</td>
+    </tr>
+    <tr>
+      <td align="center"><code>cummin</code></td>
+      <td>Cumulative minimum</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+Another useful function to count the frequency of values is shown below.
+
+Consider the DataFrame,
+```{python}
+d = {
+  "a": pd.Series(np.random.randint(0, 5, size=10)),
+  "b": pd.Series(np.random.randint(-3, 3, size=10))
+}
+df2 = pd.DataFrame(d)
+df2
+```
+
+-   Frequency of values in all rows:
+    ```{python}
+    df2.value_counts()
+    ```
+
+-   Frequency of values in a single column:
+    ```{python}
+    df2['a'].value_counts()
+    ```
+
+Additionally, two powerful functions, `agg` and `transform`, allow you to perform calculations and transformations on DataFrames. These two functions applies user defined function that reduces or broadcasts its results, repectively. However, these functions serve different purposes and have distinct use cases and we will explore these in detail later.  
+
+## Missing data
+
+Handling missing values is an essential part of data pre-processing and analysis in Pandas. Missing values can arise due to various reasons, such as data collection errors, incomplete data or sensor failures. 
+
+Let's create a DataFrame with missing values.
+
+Consider the following DataFrame:
+```{python}
+df = pd.DataFrame(np.random.randn(6, 4), index=['a', 'b', 'c', 'd', 'e', 'f'], columns=list("ABCD"))
+
+dates = pd.date_range("20130101", periods=6)
+df["E"] = dates
+
+s1 = pd.Series([1, 2, 3, 4, 5, 6], index=['a', 'b', 'c', 'd', 'e', 'f'])
+df["F"] = s1
+df
+```
+
+Re-indexing allows you to change/add/delete the index on a specified axis. This returns a copy of the data which includes several missing values. 
+```{python}
+df1 = df.reindex(index=['a', 'b', 'c', 'h', 'd', 'e', 'f', 'g'], columns=list(df.columns) + ["G", "H"])
+df1.loc['c' : 'f', "G"] = 1
+df1.loc['h','C'] = 0.634336
+df1
+```
+
+### Detecting missing values
+
+Pandas provides several methods for detecting and dealing with missing values.
+
+`isna()` and `isnull()` methods return a DataFrame of the same shape as the input, with Boolean values indicating whether each element is missing (`True`) or not (`False`).
+
+```{python}
+pd.isna(df1)
+```
+
+```{python}
+pd.isnull(df1)
+```
+
+`notna()` and `notnull()` methods are the opposite of `isna() `and `isnull()`. They return `True` for non-missing values and `False` for missing values.
+
+```{python}
+pd.notna(df1)
+```
+
+```{python}
+pd.notnull(df1)
+```
+
+Check if a column does not contain missing values:
+```{python}
+df1["G"].notna()
+```
+
+Subsetting rows to return rows that does not contain missing values in column `G`:
+
+```{python}
+df1[df1["G"].notna()]
+```
+
+The `info()` method provides a summary of the DataFrame, including the count of non-null values in each column.
+```{python}
+df1.info()
+```
+
+### Handling missing values
+
+Once you've detected missing values, you can choose from several strategies to handle them.
+
+Consider the following DataFrame,
+```{python}
+df1
+```
+
+#### Dropping missing values
+
+Consider the following DataFrame for this example,
+```{python}
+# dataframe excluding column H
+df_without_colH = df1.loc[:, "A":"G"]   
+df_without_colH
+```
+##### Dropping missing values by rows
+
+-   Drop the rows where at least one element is missing:
+    ```{python}
+    df_without_colH.dropna()
+    ```
+
+-   Drop rows that have all missing data:
+    ```{python}
+    df_without_colH.dropna(how="all")
+    ```
+
+-   Drop rows that have any missing data:
+    ```{python}
+    df_without_colH.dropna(how="any")
+    ```
+    
+-   Keep only the rows with at least 2 non-NA values:
+    ```{python}
+    df_without_colH.dropna(thresh=2)
+    ```
+
+##### Dropping missing values by columns
+
+-   Consider the following DataFrame for the remaining examples,
+    ```{python}
+    df1.loc['g','C'] = 0.877525
+    df1
+    ```
+
+-   Drop the columns where at least one element is missing:
+    ```{python}
+    df1.dropna(axis='columns') # same as axis=1
+    ```
+    
+-   Drop columns that have all missing data:
+    ```{python}
+    df1.dropna(how="all", axis=1)
+    ```
+    
+-   Drop columns that have any missing data (shown as NaN):  
+    ```{python}
+    df1.dropna(how="any", axis=1)
+    ```
+    
+    
+-   Keep only the columns with at least 6 non-NA values:
+    ```{python}
+    df1.dropna(thresh=6, axis=1)
+    ```
+    
+-   Define in which columns to look for missing values:
+    ```{python}
+    df1.dropna(subset=["B", "G"])
+    ```
+    
+
+#### Filling missing values
+
+You can fill missing values with a specific value or a calculated value using the `fillna()` method.
+
+Consider the following DataFrame,
+```{python}
+df1
+```
+
+##### Replace missing values with a scalar value
+    
+-   Fill missing values with 0:
+    ```{python}
+    df1.fillna(0)
+    ```
+    
+-   Fill missing values with a scalar, but limit the number of column fills to 2:
+    ```{python}
+    df1.fillna(12, axis='columns', limit=2)
+    ```
+
+##### Fill gaps forward or backward
+
+-   Propogate missing values forward:
+    ```{python}
+    df1.ffill() # ffill ≡ pad ≡ fillna(method='ffill')
+    ```
+    
+-   Propogate missing values backward along rows:
+    ```{python}
+    df1.bfill() # bfill ≡ backfill ≡ fillna(method='bfill')
+    ```
+
+##### Fill with a Pandas object
+
+-   Fill the missing values of a column with the mean of the column:
+    ```{python}
+    df1.fillna(df1.mean())
+    ```
+    
+-   Fill only a subset of the columns using the corresponding median
+    ```{python}
+    df1.fillna(df1.median()["F":"G"])
+    ```
+
+##### Interpolation
+
+The interpolate method is used to fill in missing values with estimated values based on the surrounding data points. It's particularly useful for time series data or datasets where values are expected to follow a pattern.
+
+The interpolate method employs various interpolation techniques to estimate missing values, including linear interpolation, polynomial interpolation, and more. The specific interpolation method used depends on the kind of data and the desired behavior.
+
+-   **Linear Interpolation**: Linear interpolation is the default method used by interpolate. It estimates missing values by drawing a straight line between two adjacent known data points and filling in the missing value with a value along that line. This method is suitable for data that appears to change linearly over time or between data points.
+-   **Polynomial Interpolation**: Polynomial interpolation uses higher-degree polynomial functions to estimate missing values. This method can capture more complex relationships between data points but may be susceptible to overfitting if not used carefully.
+-   **Time-Based Interpolation**: When working with time series data, you can use the method parameter to specify time-based interpolation methods such as 'time', 'index', or 'values'. These methods consider the time or index values to estimate missing values.
+
+Here's an example using linear interpolation:
+```{python}
+df1.interpolate()
+```
+
+## Grouping data
+
+The `groupby` function is a powerful feature within pandas that allows you to group and aggregate data in a DataFrame based on one or more columns. This can be especially useful when you want to perform summary statistics, calculations, or transformations on subsets of your data based on certain criteria. It involves one or more of the following steps:
+
+-   **Splitting:** The first step in a groupby operation is to split the DataFrame into groups based on the values in one or more columns. You specify the column(s) by which you want to group your data. This column is often referred to as the "key" or "grouping column". Each unique value in the grouping column(s) forms a group, and the rows in the DataFrame are distributed among these groups.
+-   **Applying a Function:** After splitting the data into groups, you can apply various aggregation or transformation functions to each group. These functions are typically applied to one or more columns in each group. Common aggregation functions include sum, mean, count, min, max, and more. You can also apply custom functions or perform complex operations on the grouped data.
+    -   **Aggregation:** compute a summary statistic (or statistics) for each group. Examples: compute group sums or means, compute group size. 
+    -   **Transformation:** perform some group-specific computations and return a like-indexed object. Examples: standardize data (zscore) within a group, filling NAs within groups with a value derived from each group.
+    -   **Filtration:** discard some groups, according to a group-wise computation that evaluates to True or False. Examples: discard data that belong to groups with only a few members, filter out data based on the group sum or mean.
+-   **Combining Results:** Once the specified function(s) are applied to each group, the results are combined into a new DataFrame or data structure. This final result will often have a hierarchical structure, with the grouping columns as index levels.
+
+Consider the following metabric dataset for the examples listed below.
+
+::: scrolling
+```{python}
+# Load the Metabric dataset from the URL into a DataFrame
+metabric = pd.read_csv("https://zenodo.org/record/6450144/files/metabric_clinical_and_expression_data.csv")
+metabric
+```
+:::
+
+### Aggregation
+
+This is primarily used for aggregating data (within groups when you use `groupby`). It allows you to apply one or more aggregation functions to each group and obtain a summarized result for each group.
+
+-   Calculate the total number of patients, categorized by cancer type.
+    
+    ```{python}
+    #| eval: false
+    metabric.groupby("Cancer_type")["Patient_ID"].count()
+    ```
+    
+    ```{python}
+    #| echo: false
+    metabric.groupby("Cancer_type")["Patient_ID"].count().to_frame()
+    ```
+
+    `count()` computes the number of non-NA values in the groups whereas `size()` computes the number of values in each group. To demonstrate the difference between these two methods, group the metabric dataset by `3-gene-classifier` and find the number of values in each group based on `Tumour_size` column. 
+
+    
+    ```{python}
+    #| eval: false
+    metabric.groupby("3-gene_classifier")["Tumour_size"].count()
+    ```
+    
+    ```{python}
+    #| echo: false
+    metabric.groupby("3-gene_classifier")["Tumour_size"].count().to_frame()
+    ```
+
+    ```{python}
+    #| eval: false
+    metabric.groupby("3-gene_classifier")["Tumour_size"].size()
+    ```
+    
+    ```{python}
+    #| echo: false
+    metabric.groupby("3-gene_classifier")["Tumour_size"].size().to_frame()
+    ```
+
+
+-   Determine the median age at diagnosis for each type of vital status.
+
+    ```{python}
+    #| eval: false
+    metabric.groupby("Vital_status")["Age_at_diagnosis"].median()
+    ```
+    
+    ```{python}
+    #| echo: false
+    metabric.groupby("Vital_status")["Age_at_diagnosis"].median().to_frame()
+    ```
+
+-   Calculate the total, mean, and standard deviation of Tumour_size for each combination of cancer type and ER status.
+    ```{python}
+    grouped = metabric.groupby(["Cancer_type", "ER_status"])
+    grouped["Tumour_size"].agg(['sum','mean','std'])
+    ```
+
+### Transformation
+
+This is used for element-wise transformations. It applies a given function to each element in a DataFrame or Series and returns a new Series with the same index as the original DataFrame. This function is commonly used when you want to broadcast a computed value back to the original DataFrame, maintaining the original shape of the data.
+
+-   Compute the difference between adjacent values of expression of ESR1 within each group of cancer types.
+    
+    ```{python}
+    #| eval: false
+    metabric.groupby("Cancer_type")["ESR1"].diff()
+    ```
+    
+    ```{python}
+    #| echo: false
+    metabric.groupby("Cancer_type")["ESR1"].diff().to_frame()
+    ```
+
+-   Compute the cumulative sum of mutation count within each integrative cluster group. 
+    
+    ```{python}
+    #| eval: false
+    metabric.groupby("Chemotherapy")["Mutation_count"].transform("cumsum")
+    ```
+    
+    ```{python}
+    #| echo: false
+    metabric.groupby("Chemotherapy")["Mutation_count"].transform("cumsum").to_frame()
+    ```
+    
+    -   Convert the survival time which is given in months to years. 
+    ```{python}
+    #| eval: false
+    metabric["Survival_time"].transform(lambda x: x / 12)
+    ```
+    
+    ```{python}
+    #| echo: false
+    metabric["Survival_time"].transform(lambda x: x / 12)
+    ```
+    
+    A lambda function in Python is a small, anonymous, and inline function. It is also known as a lambda expression or lambda notation. Lambda functions are a way to create small, one-time-use functions without needing to define them using the def keyword. Lambda functions are typically used for short, simple operations where defining a full function using def would be overly verbose.
+    
+    ``` python
+    lambda arguments: expression
+    ```
+    
+    Here's a simple example to illustrate the use of lambda functions:
+    
+    ```{python}
+    # Regular function to calculate the square of a number
+    def square(x):
+        return x ** 2
+    
+    # Equivalent lambda function to calculate the square of a number
+    square_lambda = lambda x: x ** 2
+    ```
+    
+
+### Filtration
+
+This is the process of selecting rows from a DataFrame based on grouping. It may either filter out entire groups, part of groups, or both. 
+
+-   Select the 3rd row of each group categorized based on cancer type.
+    ```{python}
+    metabric.groupby("Cancer_type").nth(3)
+    ```
+
+-   Print the top rows of each group categorized based on cancer type and three gene classifier.
+    
+    ```{python}
+    metabric.groupby(["Cancer_type", "3-gene_classifier"]).head()
+    ```
+
+### `apply` function
+
+Some operations on the grouped data might not fit into the aggregation, transformation, or filtration categories. For these, you can use the `apply` function.
+
+-   Select all patients with age between 50 and 70 for each group categorized based on cancer type.
+
+```{python}
+metabric.groupby('ER_status')["Age_at_diagnosis"].apply(lambda x: x[(x >= 50) & (x <= 70)])
+```
+
+```{python}
+# Filter the DataFrame directly based on 'Age_at_diagnosis' and then group by 'ER_status'
+filtered_df = metabric[(metabric['Age_at_diagnosis'] >= 50) & (metabric['Age_at_diagnosis'] <= 70)].groupby('ER_status')
+
+# Display each group in the filtered DataFrame
+for cancer_type, group in filtered_df:
+    print(f"Cancer Type: {cancer_type}")
+    print(group)
+    print()  # For better readability
+```
+
+### `assign` function
+
+This function is used to create new columns or modify existing columns in a DataFrame in a concise and flexible way. It returns a new DataFrame with the added or updated columns while keeping the original DataFrame unchanged, unless explicitly reassigned.
+
+Create a new column named `Tumor_size_cm` in the metabric DataFrame to represent tumor size in centimeters.
+
+```{python}
+metabric.assign(Tumour_size_cm = metabric.Tumour_size / 10)
+```
+
+## Joining Data
+
+Pandas provides two primary methods for combining DataFrames: concat and merge. These methods allow you to combine DataFrames along rows and columns, and they support various types of joins, including inner, left, right, and outer joins. Here's an explanation of both methods and the types of joins they support:
+
+### `concat`
+
+The `concat` method is used for concatenating (stacking) DataFrames along a particular axis, which can be either rows or columns. It's particularly useful when you want to combine DataFrames with the same structure along a common axis. It does not require a common key to merge DataFrames, as it is primarily for stacking them.
+
+Consider the following three DataFrames,
+```{python}
+df1 = pd.DataFrame({'A': ['A0', 'A1', 'A2'],
+                    'B': ['B0', 'B1', 'B2']})
+                    
+df2 = pd.DataFrame({'A': ['A3', 'A4', 'A5'],
+                    'B': ['B3', 'B4', 'B5']})
+
+df3 = pd.DataFrame({'C': ['C0', 'C1', 'C2'],
+                    'D': ['D0', 'D1', 'D2']})
+```
+
+
+-   Concatenate along rows (vertically)
+
+:::: {.columns}
+
+::: {.column width="45%"}
+```{python}
+df1
+```
+
+:::
+
+::: {.column width="10%"}
+<!-- empty column to create gap -->
+:::
+
+::: {.column width="45%"}
+```{python}
+df2
+```
+
+:::
+
+::::
+
+```{python}
+pd.concat([df1, df2], axis=0)
+```
+
+-   Concatenating along columns (horizontally)
+
+:::: {.columns}
+
+::: {.column width="45%"}
+```{python}
+df1
+```
+
+:::
+
+::: {.column width="10%"}
+<!-- empty column to create gap -->
+:::
+
+::: {.column width="45%"}
+```{python}
+df3
+```
+
+:::
+
+::::
+
+```{python}
+pd.concat([df1, df3], axis=1)
+```
+
+### `merge`
+
+The `merge` method is used for merging DataFrames based on common columns or indexes, similar to SQL joins. It's especially useful when you have different DataFrames with related data and want to combine them based on a shared key.
+
+Consider the following two DataFrames,
+```{python}
+left = pd.DataFrame({
+         "key1": ["K0", "K0", "K1", "K2"],
+         "key2": ["K0", "K1", "K0", "K1"],
+         "A": ["A0", "A1", "A2", "A3"],
+         "B": ["B0", "B1", "B2", "B3"],
+     })
+right = pd.DataFrame({
+         "key1": ["K0", "K1", "K1", "K2"],
+         "key2": ["K0", "K0", "K0", "K0"],
+         "C": ["C0", "C1", "C2", "C3"],
+         "D": ["D0", "D1", "D2", "D3"],
+     })
+```
+
+#### Inner join
+
+An inner join returns only the rows with matching values in the specified columns (the common key). It combines data from two or more tables or DataFrames based on the intersection of keys, excluding rows that do not have corresponding matches in both tables.
+
+:::: {.columns}
+
+::: {.column width="45%"}
+```{python}
+left
+```
+
+:::
+
+::: {.column width="10%"}
+<!-- empty column to create gap -->
+:::
+
+::: {.column width="45%"}
+```{python}
+right
+```
+
+:::
+
+::::
+
+```{python}
+pd.merge(left, right, how="inner", on=["key1", "key2"])
+```
+
+#### Outer join
+
+An outer join returns all rows from both tables, including rows with matching keys and rows with non-matching keys. When there's no match for a particular row in one of the tables, the missing values are filled with NULL (or NaN in pandas), indicating no corresponding data.
+
+:::: {.columns}
+
+::: {.column width="45%"}
+```{python}
+left
+```
+
+:::
+
+::: {.column width="10%"}
+<!-- empty column to create gap -->
+:::
+
+::: {.column width="45%"}
+```{python}
+right
+```
+
+:::
+
+::::
+
+```{python}
+pd.merge(left, right, how="outer", on=["key1", "key2"])
+```
+
+#### Left join
+
+A left join returns all rows from the left table (the first table specified) and matching rows from the right table (the second table specified). Non-matching rows in the right table have NULL (or NaN) values in the result.
+
+:::: {.columns}
+
+::: {.column width="45%"}
+```{python}
+left
+```
+
+:::
+
+::: {.column width="10%"}
+<!-- empty column to create gap -->
+:::
+
+::: {.column width="45%"}
+```{python}
+right
+```
+
+:::
+
+::::
+
+```{python}
+pd.merge(left, right, how="left", on=["key1", "key2"])
+```
+
+#### Right join
+
+A right join is similar to a left join but returns all rows from the right table and matching rows from the left table. Non-matching rows in the left table have NULL (or NaN) values in the result.
+
+:::: {.columns}
+
+::: {.column width="45%"}
+```{python}
+left
+```
+
+:::
+
+::: {.column width="10%"}
+<!-- empty column to create gap -->
+:::
+
+::: {.column width="45%"}
+```{python}
+right
+```
+
+:::
+
+::::
+
+```{python}
+pd.merge(left, right, how="right", on=["key1", "key2"])
+```
+
+#### Cross join
+
+A cross join is used to create all possible combinations of rows from multiple tables or DataFrames. It can be useful in specific situations, such as when you want to generate all possible pairs or combinations of data.
+
+:::: {.columns}
+
+::: {.column width="45%"}
+```{python}
+left
+```
+
+:::
+
+::: {.column width="10%"}
+<!-- empty column to create gap -->
+:::
+
+::: {.column width="45%"}
+```{python}
+right
+```
+
+:::
+
+::::
+
+```{python}
+pd.merge(left, right, how="cross")
+```
+
+## String Manipulation in Pandas
+
+String manipulation is an essential part of data pre-processing and analysis in Pandas, especially when dealing with textual data. The `str` accessor in Pandas provides a wide range of string functions that allow you to clean, transform, and extract valuable information from text data within a DataFrame.
+
+Here, we explore some of the most commonly used string manipulation functions available in Pandas for DataFrames.
+
+### `str.lower()` and `str.upper()`
+
+Converts all characters in a string to lowercase or uppercase, respectively.
+  
+```python
+df['name'] = df['name'].str.lower()  # Convert to lowercase
+df['name'] = df['name'].str.upper()  # Convert to uppercase
+```
+
+### `str.strip()`
+
+Removes leading and trailing whitespace from each string in the Series.
+
+```python
+df['name'] = df['name'].str.strip()
+```
+
+### `str.replace()`
+Replaces occurrences of a pattern (string or regex) with another string.
+
+```python
+df['address'] = df['address'].str.replace('Street', 'St')  # Replace "Street" with "St"
+```
+
+### `str.contains()`
+
+Checks if each string contains a specified substring (can use regular expressions).
+
+```python
+mask = df['email'].str.contains('@gmail.com')
+gmail_users = df[mask]
+```
+
+### `str.startswith()` and `str.endswith()`
+Checks if each string starts or ends with a specified substring.
+
+```python
+df['starts_with_A'] = df['name'].str.startswith('A')
+df['ends_with_com'] = df['email'].str.endswith('.com')
+```
+
+### `str.len()`
+Returns the length of each string in the Series.
+
+```python
+df['name_length'] = df['name'].str.len()
+```
+
+### `str.split()` and `str.join()`
+- `str.split()` splits each string in the Series into a list of substrings based on a specified delimiter.
+- `str.join()` concatenates a list of strings into a single string with a specified separator.
+
+```python
+df['first_name'] = df['name'].str.split().str[0]  # Split the name column and take the first part
+df['full_name'] = df[['first_name', 'last_name']].apply(' '.join, axis=1)  # Join first and last names
+```
+
+### `str.extract()`
+- Extracts substrings based on a regular expression pattern.
+
+```python
+df['area_code'] = df['phone_number'].str.extract(r'(\d{3})')  # Extract the first 3 digits as the area code
+```
+
+### `str.find()` and `str.index()`
+- `str.find()` returns the lowest index of the substring; returns `-1` if not found.
+- `str.index()` works similarly but raises a `ValueError` if the substring is not found.
+
+```python
+df['at_position'] = df['email'].str.find('@')
+```
+
+### `str.zfill()`
+Pads each string in the Series with zeros on the left to achieve a specified width.
+
+```python
+df['zip_code'] = df['zip_code'].str.zfill(5)  # Ensure all zip codes have 5 digits
+```
+
+### `str.cat()`
+Concatenates strings in the Series/Index with an optional separator.
+
+```python
+df['full_name'] = df['first_name'].str.cat(df['last_name'], sep=' ')
+```
+
+### `str.capitalize()` and `str.title()`
+- `str.capitalize()` converts the first character of each string to uppercase and the rest to lowercase.
+- `str.title()` converts the first character of each word to uppercase and the rest to lowercase.
+
+```python
+df['name'] = df['name'].str.capitalize()
+df['name'] = df['name'].str.title()
+```
+
