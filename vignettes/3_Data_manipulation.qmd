@@ -562,6 +562,7 @@ Some operations on the grouped data might not fit into the aggregation, transfor
 metabric.groupby('ER_status')["Age_at_diagnosis"].apply(lambda x: x[(x >= 50) & (x <= 70)])
 ```
 
+::: scrolling
 ```{python}
 # Filter the DataFrame directly based on 'Age_at_diagnosis' and then group by 'ER_status'
 filtered_df = metabric[(metabric['Age_at_diagnosis'] >= 50) & (metabric['Age_at_diagnosis'] <= 70)].groupby('ER_status')
@@ -572,6 +573,7 @@ for cancer_type, group in filtered_df:
     print(group)
     print()  # For better readability
 ```
+:::
 
 ### `assign` function
 
@@ -582,6 +584,292 @@ Create a new column named `Tumor_size_cm` in the metabric DataFrame to represent
 ```{python}
 metabric.assign(Tumour_size_cm = metabric.Tumour_size / 10)
 ```
+
+## Tidy Data
+
+Tidy data is a structured and organized format for presenting data that follows a simple convention: variables are placed in columns, observations are placed in rows and values are placed in cells. This standardized arrangement makes it easy to work with and analyze data efficiently. The principles of tidy data, are designed to promote consistency and ease of use in data analysis.
+
+![](images/tidy-data-pandas.png){fig-align="center"}
+
+Data is often entered in a wide format, where each row typically represents a site, subject, or patient, and there are multiple observation variables containing the same type of data.
+
+For instance, consider the AirPassengers dataset. It contains information on monthly airline passenger numbers from 1949 to 1960. In this dataset, each row corresponds to a single year, and the columns represent each month from January to December.
+
+![](images/airpassengers.png)
+
+Wide format is intuitive for data entry. But it is less so for data analysis. Consider calculating the monthly mean; where would you place it? Would it be another row?
+
+Data needs to be reshaped to conform to the tidy data structure. It involves using two primary verbs (or pairs of opposites):
+
+-   Gather columns into rows (`melt()`).
+-   Spread rows into columns (`pivot()`).
+
+### Converting data from wide to long format
+
+First read the counts file called GSE60450_normalized_data.csv that is in a folder called data (i.e. the path to the file should be data/GSE60450_normalized_data.csv).
+
+```{python}
+#| eval: false
+#| classes: scrolling
+#| warning: false
+counts = pd.read_csv("data/GSE60450_normalized_data.csv")
+counts.head()
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+#| warning: false
+counts = pd.read_csv("data/GSE60450_normalized_data.csv")
+counts.head()
+```
+
+```{=html}
+</details>
+```
+
+To transform this table from a wide format to a long format, we use the `melt()` function. It's important to note that this function does not create tidy data as it duplicates rows. However, the output in 'long format' from `melt()` is often necessary for visualization and for left join, which will be introduced later.
+
+This operation will convert multiple columns with counts for each sample into a single column containing all the expression values, as illustrated in the image below.
+
+![](images/piv-long.png){fig-align="center"}
+
+The `melt()` function takes four arguments:
+
+1.  **id_vars =** : Column(s) to use as identifier variables.
+2.  **value_vars =** : Columns to be unpivot or converted into labels,values in long form. If not specified, uses all columns that are not set as **id_vars =**.
+3.  **var_name =** : a name(s) for the new column(s) containing the labels from the specified columns.
+4.  **value_name =**: a name(s) for the new column(s) containing the values corresponding to the specified columns.
+
+```{python}
+#| eval: false
+#| classes: scrolling
+counts.melt(id_vars=['X', 'gene_symbol'], var_name='Sample', value_name='Count')
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+counts.melt(id_vars=['X', 'gene_symbol'], var_name='Sample', value_name='Count')
+```
+
+```{=html}
+</details>
+```
+
+```{python}
+#| eval: false
+#| classes: scrolling
+counts.melt(id_vars='X', value_vars=counts.columns[counts.columns.str.startswith('GSM')], var_name='Sample', value_name='Count')
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+counts.melt(id_vars='X', value_vars=counts.columns[counts.columns.str.startswith('GSM')], var_name='Sample', value_name='Count')
+```
+
+```{=html}
+</details>
+```
+
+The `counts.columns[counts.columns.str.startswith('GSM')]` command returns a vector of columns whose names starts with 'GSM'. `melt()` will then transform those columns into two new columns, denoted as "Sample" and "Count." The parameter `var_name = 'Sample'` indicates the new column containing the specified columns (defined by cols) should be named "Sample," while `value_name = 'Count'` specifies that the new column containing the values should be named "Count".
+
+
+### Converting data from long to wide format
+
+First, read the annotation file called GSE60450_annotation.csv (the path to the file should be data/GSE60450_annotation.csv).
+
+```{python}
+#| eval: false
+#| classes: scrolling
+#| warning: false
+annot = pd.read_csv("data/GSE60450_annotation.csv")
+annot.head()
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+#| warning: false
+annot = pd.read_csv("data/GSE60450_annotation.csv")
+annot.head()
+```
+
+```{=html}
+</details>
+```
+
+To transform this table so that it conforms to the tidy principles, we use the `pivot()` function.
+
+This operation will convert multiple rows with type and annotation into columns containing the Symbol and Gene_name, as illustrated in the image below.
+
+![](images/piv-wide.png){fig-align="center"}
+
+The `pivot()` function takes three arguments:
+
+1.  **columns =** : column containing the labels that will be transformed into the new column names.
+2.  **index =** : column to make new frames' index. If not given, uses existing index.
+3.  **values =** : column(s) containing the values that will fill the new columns.
+
+In our scenario, to reshape the annot data frame, we will use the column names Type and Annotation:
+
+```{python}
+#| eval: false
+#| classes: scrolling
+annot.pivot(index='ENSEMBL', columns='Type', values='Annotation')
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+annot.pivot(index='ENSEMBL', columns='Type', values='Annotation')
+```
+
+```{=html}
+</details>
+```
+
+
+The above operation changes the 'shape' of the dataframe from a longer format (more rows) to a wider format (more columns). While the original table consists of 40 rows, using `pivot()` results in only 20 rows. This reduction is due to the de-duplication of rows during the creation of new columns.
+
+It's important to note that since we only have two distinct labels in the Type column, we are essentially replacing the existing two columns with just two new columns. Consequently, the shape of the output doesn't technically become wider than the input data frame. However, when there are more than two unique labels in the `columns=` column, the output will indeed become wider compared to the input.
+
+### Separate Columns
+
+First, read the metadata file called GSE60450_metadata.csv (the path to the file should be data/GSE60450_metadata.csv).
+
+```{python}
+#| eval: false
+#| classes: scrolling
+#| warning: false
+metadata = pd.read_csv("data/GSE60450_metadata.csv")
+metadata.head()
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+#| warning: false
+metadata = pd.read_csv("data/GSE60450_metadata.csv")
+metadata.head()
+```
+
+```{=html}
+</details>
+```
+
+To transform this table so that it conforms to the tidy principles, we use the `str.split()` function. This operation will separate characteristic column into 3 separate columns containing the tissue_type, immunophenotype and development_stage, as illustrated in the image below.
+
+![](images/separate.png){fig-align="center"}
+
+To separate characteristic column in the metadata data frame into three separate columns based on the delimeter `;` (semi colon), we can use the `str.split()` function:
+
+```{python}
+#| eval: false
+#| classes: scrolling
+# split characteristic column into 3 strings based on delimeter ; and update the metadata dataframe
+metadata[["tissue_type", "immunophenotype", "development_stage"]] = metadata.characteristics.str.split(';', expand=True)
+# remove characteristics column
+metadata = metadata.drop(columns='characteristics')
+metadata
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+metadata[["tissue_type", "immunophenotype", "development_stage"]] = metadata.characteristics.str.split(';', expand=True)
+# remove characteristics column
+metadata = metadata.drop(columns='characteristics')
+metadata
+```
+
+```{=html}
+</details>
+```
+
+### Uniting Columns
+
+This is the complement of separate. Therefore, let's revert what we did in the previous section to combine multiple columns to a single column as illustrated in the image below.
+
+![](images/unite.png){fig-align="center"}
+
+To combine tissue type, immunophenotype, and development stage columns into characteristic column in the metadata dataframe:
+
+```{python}
+#| eval: false
+#| classes: scrolling
+metadata['characteristics'] = metadata.tissue_type.str.cat(metadata[['immunophenotype','development_stage']], sep = ';')
+# remove tissue type, immunophenotype, and development stage columns
+metadata = metadata.drop(columns=['tissue_type','immunophenotype','development_stage'])
+metadata
+```
+
+```{=html}
+<details>
+<summary>Output</summary>
+```
+
+```{python}
+#| echo: false
+#| classes: scrolling
+metadata['characteristics'] = metadata.tissue_type.str.cat(metadata[['immunophenotype','development_stage']], sep = ';')
+# another method
+# metadata.characteristics = metadata.tissue_type + ';' + metadata.immunophenotype + ';' + metadata.development_stage
+metadata
+```
+
+```{=html}
+</details>
+```
+
+A quick and easy method to unite columns using the `+` operator:
+
+```{python}
+#| eval: false
+#| classes: scrolling
+metadata.characteristics = metadata.tissue_type + ';' + metadata.immunophenotype + ';' + metadata.development_stage
+# remove tissue type, immunophenotype, and development stage columns
+metadata = metadata.drop(columns=['tissue_type','immunophenotype','development_stage'])
+metadata
+```
+
+Since we have already updated the `metadata` DataFrame to combine columns in the previous example, this code will not work. The tissue type, immunophenotype, and development stage columns are no longer available in the DataFrame as we combined them to create the characteristics column.
 
 ## Joining Data
 
@@ -684,6 +972,8 @@ right = pd.DataFrame({
 
 An inner join returns only the rows with matching values in the specified columns (the common key). It combines data from two or more tables or DataFrames based on the intersection of keys, excluding rows that do not have corresponding matches in both tables.
 
+![](images/inner_join.png){width="250" fig-align="center"}
+
 :::: {.columns}
 
 ::: {.column width="45%"}
@@ -713,6 +1003,8 @@ pd.merge(left, right, how="inner", on=["key1", "key2"])
 #### Outer join
 
 An outer join returns all rows from both tables, including rows with matching keys and rows with non-matching keys. When there's no match for a particular row in one of the tables, the missing values are filled with NULL (or NaN in pandas), indicating no corresponding data.
+
+![](images/full_outer_join.png){width="250" fig-align="center"}
 
 :::: {.columns}
 
@@ -744,6 +1036,8 @@ pd.merge(left, right, how="outer", on=["key1", "key2"])
 
 A left join returns all rows from the left table (the first table specified) and matching rows from the right table (the second table specified). Non-matching rows in the right table have NULL (or NaN) values in the result.
 
+![](images/left_join.png){width="250" fig-align="center"}
+
 :::: {.columns}
 
 ::: {.column width="45%"}
@@ -774,6 +1068,8 @@ pd.merge(left, right, how="left", on=["key1", "key2"])
 
 A right join is similar to a left join but returns all rows from the right table and matching rows from the left table. Non-matching rows in the left table have NULL (or NaN) values in the result.
 
+![](images/right_join.png){width="250" fig-align="center"}
+
 :::: {.columns}
 
 ::: {.column width="45%"}
@@ -803,6 +1099,8 @@ pd.merge(left, right, how="right", on=["key1", "key2"])
 #### Cross join
 
 A cross join is used to create all possible combinations of rows from multiple tables or DataFrames. It can be useful in specific situations, such as when you want to generate all possible pairs or combinations of data.
+
+![](images/cross-join.png){width="300" fig-align="center"}
 
 :::: {.columns}
 
@@ -836,98 +1134,128 @@ String manipulation is an essential part of data pre-processing and analysis in 
 
 Here, we explore some of the most commonly used string manipulation functions available in Pandas for DataFrames.
 
-### `str.lower()` and `str.upper()`
+-   `str.replace()`
+    Replaces occurrences of a pattern (string or regex) with another string.
+    
+    ```{python}
+    cms.columns.str.replace(' ','_')  # Replace "_" with spaces
+    ```
 
-Converts all characters in a string to lowercase or uppercase, respectively.
-  
-```python
-df['name'] = df['name'].str.lower()  # Convert to lowercase
-df['name'] = df['name'].str.upper()  # Convert to uppercase
-```
+-   `str.contains()`
+    
+    Checks if each string contains a specified substring (can use regular expressions).
+    
+    ```{python}
+    mask = cms["Facility Name"].str.contains('GENERAL')
+    cms[mask]
+    ```
+    
+    ```{python}
+    col_mask = cms.columns.str.contains('Rating')
+    cms.columns[col_mask]
+    ```
+    
+    Checks if each string contains a specified regular expression pattern.
+    
+    ```{python}
+    mask_col = cms.columns.str.contains('[A-Z][a-z]*\s[A-Z][a-z]{3}$')
+    cms.columns[mask_col]
+    ```
+    
+    Here, the regular expression `[A-Z][a-z]*\s[A-Z][a-z]{3}$` can be broken down into smaller chunks for better understanding:
+    -   [A-Z] matches an uppercase character from ‘A’ to ‘Z’.
+    -   [a-z]* matches a set of lowercase characters from ‘a’ to ‘z’.
+    -   \s matches a space.
+    -   [A-Z] matches an uppercase character from ‘A’ to ‘Z’.
+    -   [a-z]{3} matches any three lowercase characters from ‘a’ to ‘z’.
+    -   $ matches the end of the string
+    
+    Putting this together, the expression selects column names that contains two words of characters separated by a space with the first character in each word in upper case and the second word have four characters. Thus, it should match column names: Facility Name, Hospital Type, and Response Rate.
+    
+    If you’re unfamiliar with regular expressions, you can skip this section for now. However, interested readers can find many online resources to learn about regular expressions. One of my favorite online tools for building and testing regular expressions is https://regexr.com. You can use this tool to test the correctness of a regular expression.
 
-### `str.strip()`
+-   `str.startswith()` and `str.endswith()`
+    Checks if each string starts or ends with a specified substring.
+    
+    ```{python}
+    mask_county = cms.County.str.startswith('S')
+    cms.County[mask_county]
+    ```
 
-Removes leading and trailing whitespace from each string in the Series.
 
-```python
-df['name'] = df['name'].str.strip()
-```
+    ```{python}
+    mask_col = cms.columns.str.endswith('e')
+    cms.columns[mask_col]
+    ```
+    
+-   `str.len()`
+    Returns the length of each string in the Series.
+    
+    ```{python}
+    cms['County'].str.len()
+    ```
+    
+-   `str.split()`
+    Splits each string in the Series into a list of substrings based on a specified delimiter.
+    
+    ```{python}
+    cms['Hospital Type'].str.split().str[0]  # Split the Hospital Type column and take the first part
+    ```
 
-### `str.replace()`
-Replaces occurrences of a pattern (string or regex) with another string.
+-   `str.join()`
+    Concatenates a list of strings into a single string with a specified separator.
+    ```{python}
+    cms[['Facility Name', 'County']].apply(','.join, axis=1)  # Join first and last names
+    ```
+    
+-   `str.find()`
+    Returns the lowest index of the substring; returns `-1` if not found.
+    
+    ```{python}
+    cms['Facility Name'].str.find('MEMORIAL')
+    ```
 
-```python
-df['address'] = df['address'].str.replace('Street', 'St')  # Replace "Street" with "St"
-```
+-   `str.zfill()`
+    Pads each string in the Series with zeros on the left to achieve a specified width.
+    
+    ```{python}
+    cms['ID'].astype(str).str.zfill(6)  # Ensure all zip codes have 5 digits
+    ```
+    
+-   `str.cat()`
+    Concatenates strings in the Series/Index with an optional separator.
+    
+    ```{python}
+    cms['Facility Name'].str.cat(cms['County'], sep='-')
+    ```
 
-### `str.contains()`
+-   `str.lower()` and `str.upper()`
 
-Checks if each string contains a specified substring (can use regular expressions).
+    Converts all characters in a string to lowercase or uppercase, respectively.
+    
+    ```{python}
+    cms["Facility Name"].str.lower() # Convert to lowercase
+    ```
+    
+    ```{python}
+    cms["Hospital Type"].str.upper() # Convert to uppercase
+    ```
+    
+-   `str.capitalize()` and `str.title()`
+    - `str.capitalize()` converts the first character of each string to uppercase and the rest to lowercase.
+    - `str.title()` converts the first character of each word to uppercase and the rest to lowercase.
+    
+    ```{python}
+    cms['Facility Name'].str.capitalize()
+    ```
 
-```python
-mask = df['email'].str.contains('@gmail.com')
-gmail_users = df[mask]
-```
 
-### `str.startswith()` and `str.endswith()`
-Checks if each string starts or ends with a specified substring.
+    ```{python}
+    cms['Facility Name'].str.title()
+    ```
 
-```python
-df['starts_with_A'] = df['name'].str.startswith('A')
-df['ends_with_com'] = df['email'].str.endswith('.com')
-```
+This concludes the data manipulation section. By the end of this section, you should now be able to confidently read and write datasets into and from DataFrames, pre-process and clean data, handle missing values, group, join, and transform data, and perform basic statistical analysis to gain insights into the underlying data. 
 
-### `str.len()`
-Returns the length of each string in the Series.
+In the next section, we will dive into data visualization, where you'll learn how to create insightful and compelling charts and plots using the `matplotlib` package to better communicate your findings.
 
-```python
-df['name_length'] = df['name'].str.len()
-```
-
-### `str.split()` and `str.join()`
-- `str.split()` splits each string in the Series into a list of substrings based on a specified delimiter.
-- `str.join()` concatenates a list of strings into a single string with a specified separator.
-
-```python
-df['first_name'] = df['name'].str.split().str[0]  # Split the name column and take the first part
-df['full_name'] = df[['first_name', 'last_name']].apply(' '.join, axis=1)  # Join first and last names
-```
-
-### `str.extract()`
-- Extracts substrings based on a regular expression pattern.
-
-```python
-df['area_code'] = df['phone_number'].str.extract(r'(\d{3})')  # Extract the first 3 digits as the area code
-```
-
-### `str.find()` and `str.index()`
-- `str.find()` returns the lowest index of the substring; returns `-1` if not found.
-- `str.index()` works similarly but raises a `ValueError` if the substring is not found.
-
-```python
-df['at_position'] = df['email'].str.find('@')
-```
-
-### `str.zfill()`
-Pads each string in the Series with zeros on the left to achieve a specified width.
-
-```python
-df['zip_code'] = df['zip_code'].str.zfill(5)  # Ensure all zip codes have 5 digits
-```
-
-### `str.cat()`
-Concatenates strings in the Series/Index with an optional separator.
-
-```python
-df['full_name'] = df['first_name'].str.cat(df['last_name'], sep=' ')
-```
-
-### `str.capitalize()` and `str.title()`
-- `str.capitalize()` converts the first character of each string to uppercase and the rest to lowercase.
-- `str.title()` converts the first character of each word to uppercase and the rest to lowercase.
-
-```python
-df['name'] = df['name'].str.capitalize()
-df['name'] = df['name'].str.title()
-```
-
+---
