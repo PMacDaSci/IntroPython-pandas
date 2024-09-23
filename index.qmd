@@ -166,6 +166,59 @@ Both the clinical data and the gene expression values were downloaded from [cBio
 
 We excluded observations for patient tumor samples lacking expression data, resulting in a data set with fewer rows.
 
+The following table illustrates the column names and descriptions of the metabric data frame we will be using for subsequent analysis. 
+
+::: scrolling
+```{=html}
+<table class="no-spacing" cellspacing="0" >
+  <caption>Description of column names in the metabric dataset</caption>
+  <thead>
+    <tr>
+      <th>Column Name</th>
+      <th style="padding-left: 120px; " >Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Patient_Id</td>	<td>#Identifier to uniquely specify a patient.</td></tr>
+    <tr><td>Lymph_Nodes_Examined_Positive</td>	<td>Number of lymphnodes positive</td></tr>
+    <tr><td>Npi</td>	<td>Nottingham prognostic index</td></tr>
+    <tr><td>Cellularity</td>	<td>Tumor Content</td></tr>
+    <tr><td>Chemotherapy</td>	<td>Chemotherapy.</td></tr>
+    <tr><td>Cohort</td>	<td>Cohort</td></tr>
+    <tr><td>Er_Ihc</td>	<td>ER status measured by IHC</td></tr>
+    <tr><td>Her2_Snp6</td>	<td>HER2 status measured by SNP6</td></tr>
+    <tr><td>Intclust</td>	<td>Integrative Cluster</td></tr>
+    <tr><td>Age_At_Diagnosis</td>	<td>Age at Diagnosis</td></tr>
+    <tr><td>Os_Months</td>	<td>Overall survival in months since initial diagonosis.</td></tr>
+    <tr><td>Os_Status</td>	<td>Overall patient survival status.</td></tr>
+    <tr><td>Claudin_Subtype</td>	<td>Pam50 + Claudin-low subtype.</td></tr>
+    <tr><td>Threegene</td>	<td>3-Gene classifier subtype</td></tr>
+    <tr><td>Vital_Status</td>	<td>The survival state of the person.</td></tr>
+    <tr><td>Radio_Therapy</td>	<td>Radio Therapy</td></tr>
+    <tr><td>Cancer_Type</td>	<td>Cancer Type</td></tr>
+    <tr><td>Cancer_Type_Detailed</td>	<td>Cancer Type Detailed</td></tr>
+    <tr><td>Er_Status</td>	<td>ER Status</td></tr>
+    <tr><td>Her2_Status</td>	<td>HER2 Status</td></tr>
+    <tr><td>Grade</td>	<td>Numeric value to express the degree of abnormality of cancer cells, a measure of differentiation and aggressiveness.</td></tr>
+    <tr><td>Oncotree_Code</td>	<td>Oncotree Code</td></tr>
+    <tr><td>Pr_Status</td>	<td>PR Status</td></tr>
+    <tr><td>Sample_Type</td>	<td>The type of sample (i.e., normal, primary, met, recurrence).</td></tr>
+    <tr><td>Tumor_Size</td>	<td>Tumor size in mm.</td></tr>
+    <tr><td>Tumor_Stage</td>	<td>Tumor stage.</td></tr>
+    <tr><td>Tmb_Nonsynonymous</td>	<td>TMB (nonsynonymous)</td></tr>
+    <tr><td>FOXA1</td>	<td>FOXA1 Expression data</td></tr>
+    <tr><td>MLPH</td>	<td>MLPH Expression data</td></tr>
+    <tr><td>ESR1</td>	<td>ESR1 Expression data</td></tr>
+    <tr><td>ERBB2</td>	<td>ERBB2 Expression data</td></tr>
+    <tr><td>TP53</td>	<td>TP53 Expression data</td></tr>
+    <tr><td>PIK3CA</td>	<td>PIK3CA Expression data</td></tr>
+    <tr><td>GATA3</td>	<td>GATA3 Expression data</td></tr>
+    <tr><td>PGR</td>	<td>PGR Expression data</td></tr>
+  </tbody>
+</table>
+```
+:::
+
 ## Credits and Acknowledgement
 
 These content were adapted from the following course materials:

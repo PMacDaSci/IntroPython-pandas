@@ -18,6 +18,7 @@ website:
           - vignettes/1_Introduction.qmd
           - vignettes/2_Intro_pandas.qmd
           - vignettes/3_Data_manipulation.qmd
+          - vignettes/4_Visualization.qmd
   
 format:
   html:

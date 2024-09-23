@@ -1256,6 +1256,6 @@ Here, we explore some of the most commonly used string manipulation functions av
 
 This concludes the data manipulation section. By the end of this section, you should now be able to confidently read and write datasets into and from DataFrames, pre-process and clean data, handle missing values, group, join, and transform data, and perform basic statistical analysis to gain insights into the underlying data. 
 
-In the next section, we will dive into data visualization, where you'll learn how to create insightful and compelling charts and plots using the `matplotlib` package to better communicate your findings.
+In the next section, we will dive into data visualization, where you'll learn how to create insightful and compelling charts and plots using the `plotnine` package to better communicate your findings.
 
 ---
