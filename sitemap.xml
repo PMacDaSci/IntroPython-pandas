@@ -2,18 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://Sanduni-P.github.io/IntroPython-pandas/index.html</loc>
-    <lastmod>2024-09-13T02:12:14.979Z</lastmod>
+    <lastmod>2024-09-23T07:59:35.626Z</lastmod>
   </url>
   <url>
-    <loc>https://Sanduni-P.github.io/IntroPython-pandas/vignettes/1_Introduction.html</loc>
-    <lastmod>2024-09-13T02:11:59.271Z</lastmod>
+    <loc>https://Sanduni-P.github.io/IntroPython-pandas/vignettes/4_Visualization.html</loc>
+    <lastmod>2024-09-23T07:59:10.527Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Sanduni-P.github.io/IntroPython-pandas/vignettes/3_Data_manipulation.html</loc>
+    <lastmod>2024-09-23T07:58:37.374Z</lastmod>
   </url>
   <url>
     <loc>https://Sanduni-P.github.io/IntroPython-pandas/vignettes/Introduction.html</loc>
-    <lastmod>2024-09-13T02:11:54.439Z</lastmod>
+    <lastmod>2024-09-23T07:58:18.953Z</lastmod>
   </url>
   <url>
-    <loc>https://Sanduni-P.github.io/IntroPython-pandas/vignettes/2_Reading_tidying_data.html</loc>
-    <lastmod>2024-09-13T02:12:12.518Z</lastmod>
+    <loc>https://Sanduni-P.github.io/IntroPython-pandas/vignettes/1_Introduction.html</loc>
+    <lastmod>2024-09-23T07:58:42.034Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Sanduni-P.github.io/IntroPython-pandas/vignettes/2_Intro_pandas.html</loc>
+    <lastmod>2024-09-23T07:59:32.344Z</lastmod>
   </url>
 </urlset>
