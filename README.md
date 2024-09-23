@@ -7,7 +7,7 @@ The workshop will cover essential programming concepts and gradually introduce m
 
 # Instructor
 
-Sandun Rajapaksa
+Sanduni Rajapaksa
 
 # Learning Objectives
 
