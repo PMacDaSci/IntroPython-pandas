@@ -459,7 +459,6 @@ Instead of mapping an aesthetic property to a variable, you can set it to a sing
 #| fig-align: center
 #| layout-ncol: 2
 #| eval: false
-
 # size outside aes()
 plot1 = (
   ggplot(data = metabric, mapping = aes(x = "GATA3", y = "ESR1")) + 
