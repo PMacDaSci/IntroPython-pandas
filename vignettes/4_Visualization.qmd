@@ -76,7 +76,7 @@ This results in a plot which includes the grid lines, the variables and the scal
 
 Finally, we specify the type of plot (the *geom*). There are different types of geoms:
 
-````{=html}
+```{=html}
 <table class="unstyledTable">
 <tbody>
 <tr>
@@ -348,7 +348,7 @@ Finally, we specify the type of plot (the *geom*). There are different types of 
 </tr>
 </tbody>
 </table>
-````
+```
 
 The range of geoms available in `plotnine` package can be obtained by navigating to the help page of `geoms` package in the `plotnine` package as follows:
 
