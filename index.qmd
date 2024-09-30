@@ -2,7 +2,7 @@
 
 This workshop is designed to give beginners a solid foundation in **Python programming**, with a specific focus on applications in cancer biology. Participants will gain a thorough understanding of essential programming concepts through a blend of theoretical lessons, hands-on coding exercises, and practical applications.
 
-The workshop will cover essential programming concepts and gradually introduce more advanced topics, with a focus on using the Pandas library for efficient data handling and analysis and matplotlib library for data visualization. By the end of the workshop, attendees will be equipped with the skills to enhance the reproducibility and efficiency of scientific research through powerful data analysis tools and effective visualization techniques.
+The workshop will cover essential programming concepts and gradually introduce more advanced topics, with a focus on using the `pandas` library for efficient data handling and analysis and `plotnine` (`ggplot`) library for data visualization. By the end of the workshop, attendees will be equipped with the skills to enhance the reproducibility and efficiency of scientific research through powerful data analysis tools and effective visualization techniques.
 
 ## Learning Objectives
 
@@ -12,7 +12,7 @@ Participants will gain the following skills:
 -   Basic Python programming skills.
 -   Reading, tidying, and joining datasets using `pandas` library.
 -   Data manipulation and transformation using `pandas` library.
--   Creating various types of plots using `matplotlib` library.
+-   Creating various types of plots using `plotnine` library.
 
 ## Prerequisites
 
