@@ -1,3 +1,7 @@
+---
+title: "Introduction to Python"
+---
+
 ## Introduction
 
 This workshop is designed to give beginners a solid foundation in **Python programming**, with a specific focus on applications in cancer biology. Participants will gain a thorough understanding of essential programming concepts through a blend of theoretical lessons, hands-on coding exercises, and practical applications.
