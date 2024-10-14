@@ -129,20 +129,18 @@ The [RStudio IDE](https://posit.co/download/rstudio-desktop/) is a free and open
 
 ### Step 3: Installing a Python library
 
-If you are currently using Python using conda (or Anaconda) or if you are using the cluster, a Python library can be installed with Anaconda or Miniconda. For example, to install the pandas and matplotlib libraries of Python use the following command on the terminal.
+If you are currently using Python using conda (or Anaconda) or if you are using the cluster, a Python library can be installed with Anaconda or Miniconda. For example, to install the `pandas` and `plotnine` libraries of Python use the following command on the terminal.
 
 ```{python} 
 #| eval: false
-conda install conda-forge::pandas 
-conda install conda-forge::matplotlib 
+conda install conda-forge::pandas, plotnine, matplotlib, numpy
 ```
 
-If you installed Python using Pip, then a Python library can be installed via pip from Python Package Index ([PyPI](https://pypi.org/project/pandas)). To install the pandas library of Python use the following command on the terminal.
+If you installed Python using Pip, then a Python library can be installed via pip from Python Package Index ([PyPI](https://pypi.org/project/pandas)). To install the required libraries of Python use the following command on the terminal.
 
 ```{python} 
 #| eval: false
-pip install pandas 
-pip install matplotlib 
+pip install pandas, matplotlib, plotnine, numpy
 ```
 
 If Anaconda Navigator is installed and you prefer to use the Navigator instead of typing commands on a terminal refer to [Installing and managing Python packages](https://docs.anaconda.com/free/navigator/tutorials/manage-packages/).
