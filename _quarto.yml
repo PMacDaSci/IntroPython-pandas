@@ -11,8 +11,8 @@ website:
     style: "docked"
     search: true
     contents:
-      - href: index.html
-        text: Home
+      - text: Home
+        href: index.html
       - section: "Workshop Materials"
         contents: 
           - vignettes/1_Introduction.qmd
