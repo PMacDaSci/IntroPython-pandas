@@ -721,7 +721,7 @@ plot = (
 plot.draw()  
 ```
 
-### Customizing Plots
+### Adding Title, Subtitle and Caption
 
 You can customize plots to include a title, a subtitle, a caption or a tag.
 
